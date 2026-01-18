@@ -1,7 +1,4 @@
 import { useCallback, useState } from "react";
-import PptxGenJS from "pptxgenjs";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 
 export const useExport = (totalSlides: number) => {
   const [isExporting, setIsExporting] = useState(false);
@@ -31,6 +28,8 @@ export const useExport = (totalSlides: number) => {
     setExportProgress(0);
 
     try {
+      // Dynamically import to avoid React context issues
+      const PptxGenJS = (await import("pptxgenjs")).default;
       const pptx = new PptxGenJS();
       
       pptx.author = "Pramit Datta & Sejal Roy";
@@ -122,85 +121,66 @@ export const useExport = (totalSlides: number) => {
     setExportProgress(0);
 
     try {
+      // Dynamically import to avoid React context issues
+      const { jsPDF } = await import("jspdf");
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "px",
         format: [1280, 720],
       });
 
-      const slideElements = document.querySelectorAll('[data-slide-content]');
-      
-      if (slideElements.length === 0) {
-        // Fallback: create PDF from content data
-        const pageWidth = 1280;
-        const pageHeight = 720;
+      const pageWidth = 1280;
+      const pageHeight = 720;
 
-        for (let i = 0; i < slideContent.length; i++) {
-          if (i > 0) pdf.addPage();
-          
-          const content = slideContent[i];
-          
-          // Background
-          pdf.setFillColor(10, 15, 26);
-          pdf.rect(0, 0, pageWidth, pageHeight, "F");
+      for (let i = 0; i < slideContent.length; i++) {
+        if (i > 0) pdf.addPage();
+        
+        const content = slideContent[i];
+        
+        // Background
+        pdf.setFillColor(10, 15, 26);
+        pdf.rect(0, 0, pageWidth, pageHeight, "F");
 
-          // Title
-          pdf.setTextColor(212, 175, 55);
-          pdf.setFontSize(i === 0 || i === slideContent.length - 1 ? 48 : 36);
-          pdf.setFont("helvetica", "bold");
-          
-          const titleY = i === 0 || i === slideContent.length - 1 ? 300 : 80;
-          const titleX = i === 0 || i === slideContent.length - 1 ? pageWidth / 2 : 60;
-          const align = i === 0 || i === slideContent.length - 1 ? "center" : "left";
-          
-          pdf.text(content.title, titleX, titleY, { align: align as any });
+        // Title
+        pdf.setTextColor(212, 175, 55);
+        pdf.setFontSize(i === 0 || i === slideContent.length - 1 ? 48 : 36);
+        pdf.setFont("helvetica", "bold");
+        
+        const titleY = i === 0 || i === slideContent.length - 1 ? 300 : 80;
+        const titleX = i === 0 || i === slideContent.length - 1 ? pageWidth / 2 : 60;
+        const align: "center" | "left" | "right" = i === 0 || i === slideContent.length - 1 ? "center" : "left";
+        
+        pdf.text(content.title, titleX, titleY, { align });
 
-          // Subtitle
-          if (content.subtitle) {
-            pdf.setTextColor(148, 163, 184);
-            pdf.setFontSize(24);
-            pdf.setFont("helvetica", "normal");
-            const subtitleY = i === 0 || i === slideContent.length - 1 ? 360 : 130;
-            pdf.text(content.subtitle, titleX, subtitleY, { align: align as any });
-          }
+        // Subtitle
+        if (content.subtitle) {
+          pdf.setTextColor(148, 163, 184);
+          pdf.setFontSize(24);
+          pdf.setFont("helvetica", "normal");
+          const subtitleY = i === 0 || i === slideContent.length - 1 ? 360 : 130;
+          pdf.text(content.subtitle, titleX, subtitleY, { align });
+        }
 
-          // Bullets
-          if (content.bullets) {
+        // Bullets
+        if (content.bullets) {
+          pdf.setTextColor(226, 232, 240);
+          pdf.setFontSize(20);
+          pdf.setFont("helvetica", "normal");
+          
+          content.bullets.forEach((bullet, j) => {
+            pdf.setTextColor(212, 175, 55);
+            pdf.text("•", 60, 180 + j * 50);
             pdf.setTextColor(226, 232, 240);
-            pdf.setFontSize(20);
-            pdf.setFont("helvetica", "normal");
-            
-            content.bullets.forEach((bullet, j) => {
-              pdf.setTextColor(212, 175, 55);
-              pdf.text("•", 60, 180 + j * 50);
-              pdf.setTextColor(226, 232, 240);
-              pdf.text(bullet, 90, 180 + j * 50);
-            });
-          }
-
-          // Slide number
-          pdf.setTextColor(100, 116, 139);
-          pdf.setFontSize(14);
-          pdf.text(`${i + 1} / ${slideContent.length}`, pageWidth - 60, pageHeight - 40, { align: "right" });
-
-          setExportProgress(Math.round(((i + 1) / slideContent.length) * 100));
-        }
-      } else {
-        // Use html2canvas for actual slide capture
-        for (let i = 0; i < slideElements.length; i++) {
-          if (i > 0) pdf.addPage();
-          
-          const canvas = await html2canvas(slideElements[i] as HTMLElement, {
-            backgroundColor: "#0a0f1a",
-            scale: 2,
-            useCORS: true,
+            pdf.text(bullet, 90, 180 + j * 50);
           });
-
-          const imgData = canvas.toDataURL("image/jpeg", 0.95);
-          pdf.addImage(imgData, "JPEG", 0, 0, 1280, 720);
-          
-          setExportProgress(Math.round(((i + 1) / slideElements.length) * 100));
         }
+
+        // Slide number
+        pdf.setTextColor(100, 116, 139);
+        pdf.setFontSize(14);
+        pdf.text(`${i + 1} / ${slideContent.length}`, pageWidth - 60, pageHeight - 40, { align: "right" });
+
+        setExportProgress(Math.round(((i + 1) / slideContent.length) * 100));
       }
 
       pdf.save("FDI_Sensitivity_Analysis_India.pdf");
