@@ -16,12 +16,12 @@ const laggedData = [
 ];
 
 const vifData = [
-  { variable: "GDP Growth", vif: "1.82", interpretation: "Low" },
-  { variable: "Exchange Rate (REER)", vif: "2.45", interpretation: "Low" },
-  { variable: "Inflation (CPI)", vif: "3.12", interpretation: "Moderate" },
-  { variable: "Repo Rate", vif: "2.87", interpretation: "Moderate" },
-  { variable: "GST Dummy", vif: "1.56", interpretation: "Low" },
-  { variable: "Tax Reform Dummy", vif: "1.89", interpretation: "Low" },
+  { variable: "GDP Growth", vif: "1.82" },
+  { variable: "Exchange Rate (REER)", vif: "2.45" },
+  { variable: "Inflation (CPI)", vif: "3.12" },
+  { variable: "Repo Rate", vif: "2.87" },
+  { variable: "GST Dummy", vif: "1.56" },
+  { variable: "Tax Reform Dummy", vif: "1.89" },
 ];
 
 const robustnessChecks = [
@@ -98,7 +98,6 @@ const Slide11Robustness = ({ slideNumber, totalSlides }: SlideProps) => {
                 <tr>
                   <th className="table-header text-xs">Variable</th>
                   <th className="table-header text-right text-xs">VIF</th>
-                  <th className="table-header text-right text-xs">Level</th>
                 </tr>
               </thead>
               <tbody>
@@ -111,18 +110,14 @@ const Slide11Robustness = ({ slideNumber, totalSlides }: SlideProps) => {
                   >
                     <td className="table-cell font-medium text-xs">{row.variable}</td>
                     <td className="table-cell text-right font-mono text-primary text-xs">{row.vif}</td>
-                    <td className={`table-cell text-right text-xs ${row.interpretation === 'Low' ? 'text-chart-positive' : 'text-accent'}`}>
-                      {row.interpretation}
-                    </td>
                   </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="flex items-start gap-2 mt-3 text-xs text-muted-foreground">
-            <AlertTriangle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-            <span>VIF &lt; 5 indicates acceptable multicollinearity levels. Moderate VIF does not undermine fixed-effects stability.</span>
-          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            All VIF values are below 5, indicating acceptable multicollinearity levels. This confirms that multicollinearity does not undermine the stability of fixed-effects estimates.
+          </p>
         </motion.div>
       </div>
 
