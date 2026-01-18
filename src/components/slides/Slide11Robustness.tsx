@@ -16,12 +16,10 @@ const laggedData = [
 ];
 
 const vifData = [
-  { variable: "GDP Growth", vif: "1.82" },
-  { variable: "Exchange Rate (REER)", vif: "2.45" },
-  { variable: "Inflation (CPI)", vif: "3.12" },
-  { variable: "Repo Rate", vif: "2.87" },
-  { variable: "GST Dummy", vif: "1.56" },
-  { variable: "Tax Reform Dummy", vif: "1.89" },
+  { variable: "GDP Growth", vif: "15.23" },
+  { variable: "Inflation", vif: "36.61" },
+  { variable: "Exchange Rate", vif: "36.75" },
+  { variable: "Repo Rate", vif: "30.74" },
 ];
 
 const robustnessChecks = [
@@ -116,7 +114,7 @@ const Slide11Robustness = ({ slideNumber, totalSlides }: SlideProps) => {
             </table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            All VIF values are below 5, indicating acceptable multicollinearity levels. This confirms that multicollinearity does not undermine the stability of fixed-effects estimates.
+            High VIF values indicate multicollinearity among macroeconomic variables. However, this does not undermine the stability of fixed-effects estimates, as inference is based on clustered standard errors and the primary focus is on policy interaction terms.
           </p>
         </motion.div>
       </div>
